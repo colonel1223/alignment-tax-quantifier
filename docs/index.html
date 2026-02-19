@@ -1,16 +1,238 @@
-<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Alignment Tax Quantifier</title>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>THE MATRIX: AGI — Alignment Tax Quantifier</title>
+<meta name="description" content="Alignment Tax Quantifier — overhead decomposition, Pareto frontier, Shapley attribution."/>
 <style>
-  body{margin:0;background:#050205;color:#f2f2f2;font-family:ui-monospace,Menlo,Monaco,Consolas,monospace}
-  .wrap{min-height:100vh;display:grid;place-items:center;text-align:center;padding:48px}
-  h1{letter-spacing:.08em;margin:0 0 10px}
-  .sub{opacity:.7;max-width:70ch;line-height:1.5}
-  a{color:#ff2a2a;text-decoration:none} a:hover{text-decoration:underline}
+  :root{
+    --bg:#050205;
+    --fg:#f2f2f2;
+    --mut:rgba(242,242,242,.62);
+    --red:#ff2a2a;
+    --crim:#b3001e;
+    --line:rgba(255,42,42,.20);
+    --glass:rgba(0,0,0,.34);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; overflow:hidden; color:var(--fg); font-family:var(--mono);
+    background:
+      radial-gradient(1000px 700px at 50% 40%, rgba(255,42,42,.09), transparent 60%),
+      radial-gradient(900px 650px at 18% 28%, rgba(179,0,30,.12), transparent 58%),
+      radial-gradient(900px 650px at 82% 22%, rgba(179,0,30,.09), transparent 60%),
+      var(--bg);
+  }
+  canvas#rain{position:fixed; inset:0; opacity:.62; filter: blur(.35px)}
+  .scan{position:fixed; inset:0; pointer-events:none;
+    background: repeating-linear-gradient(to bottom,
+      rgba(255,255,255,.06), rgba(255,255,255,.06) 1px,
+      transparent 2px, transparent 7px);
+    mix-blend-mode: overlay; opacity:.06;
+  }
+  .veil{position:fixed; inset:0; pointer-events:none;
+    background:
+      radial-gradient(1200px 900px at 50% 40%, transparent 45%, rgba(0,0,0,.58) 100%),
+      linear-gradient(180deg, rgba(0,0,0,.58), transparent 18%, transparent 72%, rgba(0,0,0,.58));
+    opacity:.95;
+  }
+  .hud{
+    position:fixed; left:0; right:0; top:0; z-index:5;
+    padding:10px 14px;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, rgba(0,0,0,.72), rgba(0,0,0,.18));
+    font-size:12px; color:rgba(255,42,42,.75);
+    display:flex; justify-content:space-between; gap:14px; white-space:nowrap;
+  }
+  .nav{
+    position:fixed; left:0; right:0; top:42px; z-index:5;
+    padding:10px 14px;
+    display:flex; justify-content:space-between; align-items:center;
+    border-bottom:1px solid rgba(255,42,42,.10);
+    background:rgba(0,0,0,.22);
+    backdrop-filter: blur(6px);
+  }
+  .brand{letter-spacing:.14em; text-transform:uppercase; font-size:12px; color:rgba(255,42,42,.85)}
+  .links{display:flex; gap:18px; font-size:11px; letter-spacing:.12em; text-transform:uppercase}
+  .links a{color:rgba(242,242,242,.55); text-decoration:none; border-bottom:1px solid transparent; padding-bottom:2px}
+  .links a:hover{color:rgba(255,42,42,.85); border-bottom-color:rgba(255,42,42,.35)}
+  .wrap{
+    position:relative; z-index:3;
+    height:100%;
+    display:grid; place-items:center;
+    padding:110px 18px 56px;
+    text-align:center;
+  }
+  .kicker{
+    font-size:12px; letter-spacing:.18em; text-transform:uppercase;
+    color:rgba(255,42,42,.55); margin-bottom:12px;
+  }
+  h1{
+    margin:0;
+    font-size:min(84px, 10.4vw);
+    letter-spacing:.06em;
+    line-height:1.02;
+    text-shadow:0 0 18px rgba(255,42,42,.12), 0 0 44px rgba(179,0,30,.10);
+  }
+  .sub{
+    margin:16px auto 8px;
+    max-width:980px;
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:rgba(255,42,42,.78);
+  }
+  .jp{
+    margin:10px auto 0;
+    max-width:980px;
+    font-size:12px;
+    color:rgba(255,42,42,.55);
+    letter-spacing:.08em;
+  }
+  .grid{
+    margin:22px auto 0;
+    max-width:1040px;
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap:10px;
+  }
+  .card{
+    text-align:left;
+    padding:12px 12px;
+    border:1px solid rgba(255,42,42,.14);
+    background:rgba(0,0,0,.22);
+  }
+  .card .h{
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:rgba(242,242,242,.68);
+    margin-bottom:8px;
+  }
+  .card .v{
+    font-size:12px;
+    color:rgba(255,42,42,.78);
+    letter-spacing:.02em;
+    line-height:1.45;
+  }
+  .codebox{
+    margin:12px auto 0;
+    max-width:1040px;
+    padding:14px 14px;
+    border:1px solid rgba(255,42,42,.16);
+    background:rgba(0,0,0,.26);
+    font-size:12px;
+    color:rgba(242,242,242,.62);
+    text-align:left;
+  }
+  .codebox .red{color:rgba(255,42,42,.82)}
+  .footer{
+    position:fixed; left:0; right:0; bottom:0; z-index:5;
+    padding:10px 14px;
+    border-top:1px solid rgba(255,42,42,.12);
+    background:linear-gradient(0deg, rgba(0,0,0,.74), rgba(0,0,0,.10));
+    font-size:11px; color:rgba(255,42,42,.55);
+    letter-spacing:.18em; text-transform:uppercase;
+    display:flex; justify-content:center;
+  }
+  @media (max-width: 900px){
+    .grid{grid-template-columns:1fr}
+  }
 </style>
-<div class="wrap">
-  <div>
-    <h1>ALIGNMENT TAX QUANTIFIER</h1>
-    <div class="sub">GitHub Pages is live. Next step: drop your real Matrix/Y2K dashboard into <code>/docs</code>.</div>
-    <div class="sub" style="margin-top:12px;"><a href="https://github.com/colonel1223/alignment-tax-quantifier">Repo</a></div>
+</head>
+<body>
+<canvas id="rain"></canvas>
+<div class="scan"></div>
+<div class="veil"></div>
+
+<div class="hud">
+  <div id="hudLeft"></div>
+  <div id="hudRight"></div>
+</div>
+
+<div class="nav">
+  <div class="brand">matrix:agi</div>
+  <div class="links">
+    <a href="https://github.com/colonel1223/alignment-tax-quantifier">github</a>
+    <a href="https://x.com/colonel_1223">x</a>
+    <a href="https://www.linkedin.com/in/spencercottrell/">linkedin</a>
   </div>
 </div>
+
+<div class="wrap">
+  <div>
+    <div class="kicker">CLASSIFIED RESEARCH DOCUMENT // 機密研究文書</div>
+    <h1>ALIGNMENT TAX QUANTIFIER</h1>
+    <div class="sub">OVERHEAD DECOMPOSITION • PARETO OPTIMIZATION • SHAPLEY ATTRIBUTION</div>
+    <div class="jp">安全性コストの分解・最適化 — 東京Y2Kサイバーパンク</div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="h">Metric</div>
+        <div class="v">Tax = (Baseline − Aligned) / Baseline</div>
+      </div>
+      <div class="card">
+        <div class="h">Attribution</div>
+        <div class="v">Constraint-level Shapley contributions (Monte Carlo)</div>
+      </div>
+      <div class="card">
+        <div class="h">Optimization</div>
+        <div class="v">NSGA-II frontier: cost ↓ vs safety ↑ vs utility ↑</div>
+      </div>
+    </div>
+
+    <div class="codebox">
+      <div class="red">Goal:</div> quantify safety overhead with confidence intervals and a Pareto frontier, then monitor drift in production.<br><br>
+      <span class="red">Next:</span> export experiment results as <code>docs/results.json</code> and render plots here (frontier + attribution + CI).
+    </div>
+  </div>
+</div>
+
+<div class="footer">MOVE CURSOR TO INTERACT — THE ENTITY RESPONDS</div>
+
+<script>
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function stamp(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+pad(d.getHours())+":"+pad(d.getMinutes()); }
+  const now = new Date();
+  document.getElementById("hudLeft").textContent = "Today: "+stamp(now)+"    Last Updated: "+stamp(now);
+  document.getElementById("hudRight").textContent = "Countdown: "+(286*24)+"h "+pad(now.getMinutes())+"m "+pad(now.getSeconds())+"s";
+
+  const c = document.getElementById("rain");
+  const ctx = c.getContext("2d");
+  let w,h,cols,y;
+  const chars = "01";
+  function resize(){
+    w = c.width = innerWidth * devicePixelRatio;
+    h = c.height = innerHeight * devicePixelRatio;
+    const fs = 14 * devicePixelRatio;
+    cols = Math.floor(w / fs);
+    y = new Array(cols).fill(0).map(()=>Math.random()*h);
+    ctx.font = fs+"px ui-monospace, Menlo, Monaco, Consolas, monospace";
+  }
+  addEventListener("resize", resize); resize();
+
+  let mx=-9999,my=-9999;
+  addEventListener("mousemove",(e)=>{ mx=e.clientX*devicePixelRatio; my=e.clientY*devicePixelRatio; });
+
+  function frame(){
+    ctx.fillStyle = "rgba(0,0,0,0.08)";
+    ctx.fillRect(0,0,w,h);
+    const fs = parseFloat(ctx.font);
+    for(let i=0;i<cols;i++){
+      const x=i*fs, dy=y[i];
+      const dist=Math.hypot(x-mx, dy-my);
+      const glow = dist < 140*devicePixelRatio ? 0.92 : 0.38;
+      ctx.fillStyle = "rgba(255,42,42,"+glow+")";
+      ctx.fillText(chars[(Math.random()*2)|0], x, dy);
+      y[i] += fs*(0.65 + Math.random()*0.55);
+      if(y[i] > h) y[i] = 0;
+    }
+    requestAnimationFrame(frame);
+  }
+  frame();
+</script>
+</body>
+</html>
