@@ -3,45 +3,31 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>THE MATRIX: AGI</title>
+<title>THE MATRIX: AGI — Alignment Tax Quantifier</title>
 <style>
   :root{
-    --bg:#050205;
-    --fg:#f2f2f2;
-    --mut:rgba(242,242,242,.62);
-    --red:#ff2a2a;
-    --red2:#b3001e;
-    --hud:rgba(255,42,42,.75);
-    --line:rgba(255,42,42,.20);
-    --glass:rgba(0,0,0,.40);
+    --bg:#050205; --fg:#f2f2f2; --mut:rgba(242,242,242,.62);
+    --red:#ff2a2a; --red2:#b3001e; --line:rgba(255,42,42,.20);
     --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
   body{
-    margin:0;
+    margin:0; color:var(--fg); overflow:hidden;
     background:
       radial-gradient(1000px 700px at 50% 40%, rgba(255,42,42,.08), transparent 60%),
       radial-gradient(900px 600px at 20% 30%, rgba(179,0,30,.10), transparent 58%),
       radial-gradient(900px 600px at 80% 20%, rgba(179,0,30,.08), transparent 60%),
       var(--bg);
-    color:var(--fg);
-    overflow:hidden;
-    font-family:var(--sans);
+    font-family:var(--mono);
   }
-
-  /* subtle vignette + blur veil like your reference */
   .veil{
     position:fixed; inset:0; pointer-events:none;
     background:
       radial-gradient(1200px 900px at 50% 40%, transparent 45%, rgba(0,0,0,.55) 100%),
       linear-gradient(180deg, rgba(0,0,0,.55), transparent 18%, transparent 72%, rgba(0,0,0,.55));
-    filter: blur(.3px);
     opacity:.95;
   }
-
-  /* scanlines */
   .scan{
     position:fixed; inset:0; pointer-events:none;
     background: repeating-linear-gradient(to bottom,
@@ -50,28 +36,17 @@
       transparent 2px,
       transparent 7px
     );
-    mix-blend-mode: overlay;
-    opacity:.06;
+    mix-blend-mode: overlay; opacity:.06;
   }
-
-  /* HUD top bar */
+  canvas#rain{position:fixed; inset:0; filter: blur(.35px); opacity:.62;}
   .hud{
     position:fixed; left:0; right:0; top:0;
     padding:10px 14px;
     border-bottom:1px solid var(--line);
     background:linear-gradient(180deg, rgba(0,0,0,.70), rgba(0,0,0,.20));
-    font-family:var(--mono);
-    font-size:12px;
-    color:var(--hud);
-    display:flex;
-    justify-content:space-between;
-    gap:14px;
-    white-space:nowrap;
+    font-size:12px; color:rgba(255,42,42,.75);
+    display:flex; justify-content:space-between; gap:14px; white-space:nowrap;
   }
-  .hud .left{opacity:.95}
-  .hud .right{opacity:.85}
-
-  /* nav strip */
   .nav{
     position:fixed; left:0; right:0; top:42px;
     padding:10px 14px;
@@ -81,110 +56,48 @@
     backdrop-filter: blur(6px);
   }
   .brand{
-    font-family:var(--mono);
-    letter-spacing:.14em;
-    color:rgba(255,42,42,.85);
-    font-size:12px;
-    text-transform:uppercase;
+    letter-spacing:.14em; color:rgba(255,42,42,.85);
+    font-size:12px; text-transform:uppercase;
   }
-  .links{
-    display:flex; gap:18px; align-items:center;
-    font-family:var(--mono);
-    font-size:11px;
-    letter-spacing:.12em;
-    text-transform:uppercase;
-  }
-  .links a{
-    color:rgba(242,242,242,.55);
-    text-decoration:none;
-    border-bottom:1px solid transparent;
-    padding-bottom:2px;
-  }
-  .links a:hover{
-    color:rgba(255,42,42,.85);
-    border-bottom-color:rgba(255,42,42,.35);
-  }
-
-  /* matrix rain layer (red) */
-  canvas#rain{
-    position:fixed; inset:0;
-    filter: blur(.35px);
-    opacity:.62;
-  }
-
-  /* center hero */
+  .links{display:flex; gap:18px; font-size:11px; letter-spacing:.12em; text-transform:uppercase;}
+  .links a{color:rgba(242,242,242,.55); text-decoration:none; border-bottom:1px solid transparent; padding-bottom:2px;}
+  .links a:hover{color:rgba(255,42,42,.85); border-bottom-color:rgba(255,42,42,.35);}
   .wrap{
-    position:relative;
-    height:100%;
-    display:grid;
-    place-items:center;
-    padding:110px 18px 40px;
-    text-align:center;
+    position:relative; height:100%;
+    display:grid; place-items:center;
+    padding:110px 18px 40px; text-align:center;
   }
   .kicker{
-    font-family:var(--mono);
-    letter-spacing:.18em;
-    text-transform:uppercase;
-    color:rgba(255,42,42,.55);
-    font-size:12px;
-    margin-bottom:12px;
+    letter-spacing:.18em; text-transform:uppercase;
+    color:rgba(255,42,42,.55); font-size:12px; margin-bottom:12px;
   }
   h1{
-    margin:0;
-    font-family:var(--mono);
-    letter-spacing:.06em;
-    font-size:min(82px, 10.2vw);
-    line-height:1.02;
-    color:rgba(245,245,245,.98);
-    text-shadow:
-      0 0 18px rgba(255,42,42,.12),
-      0 0 44px rgba(179,0,30,.10);
+    margin:0; letter-spacing:.06em;
+    font-size:min(82px, 10.2vw); line-height:1.02;
+    text-shadow: 0 0 18px rgba(255,42,42,.12), 0 0 44px rgba(179,0,30,.10);
   }
   .sub{
-    margin:16px auto 12px;
-    max-width:980px;
-    font-family:var(--mono);
-    font-size:12px;
-    letter-spacing:.14em;
-    text-transform:uppercase;
+    margin:16px auto 12px; max-width:980px;
+    font-size:12px; letter-spacing:.14em; text-transform:uppercase;
     color:rgba(255,42,42,.75);
   }
-  .jp{
-    margin:10px auto 0;
-    max-width:980px;
-    font-family:var(--mono);
-    font-size:12px;
-    color:rgba(255,42,42,.55);
-    letter-spacing:.08em;
-  }
-
-  /* formula / code block like reference */
+  .jp{margin:10px auto 0; max-width:980px; font-size:12px; color:rgba(255,42,42,.55); letter-spacing:.08em;}
   .codebox{
-    margin:22px auto 0;
-    max-width:980px;
+    margin:22px auto 0; max-width:980px;
     padding:14px 14px;
     border:1px solid rgba(255,42,42,.16);
     background:rgba(0,0,0,.26);
-    font-family:var(--mono);
-    font-size:12px;
-    color:rgba(242,242,242,.62);
-    letter-spacing:.02em;
-    text-align:left;
+    font-size:12px; color:rgba(242,242,242,.62); text-align:left;
   }
   .codebox .red{color:rgba(255,42,42,.80)}
   .footer{
-    position:fixed;
-    left:0; right:0; bottom:0;
+    position:fixed; left:0; right:0; bottom:0;
     padding:10px 14px;
     border-top:1px solid rgba(255,42,42,.12);
     background:linear-gradient(0deg, rgba(0,0,0,.72), rgba(0,0,0,.10));
-    font-family:var(--mono);
-    font-size:11px;
-    color:rgba(255,42,42,.55);
-    display:flex;
-    justify-content:center;
-    letter-spacing:.18em;
-    text-transform:uppercase;
+    font-size:11px; color:rgba(255,42,42,.55);
+    display:flex; justify-content:center;
+    letter-spacing:.18em; text-transform:uppercase;
   }
 </style>
 </head>
@@ -194,8 +107,8 @@
 <div class="veil"></div>
 
 <div class="hud">
-  <div class="left" id="hudLeft"></div>
-  <div class="right" id="hudRight"></div>
+  <div id="hudLeft"></div>
+  <div id="hudRight"></div>
 </div>
 
 <div class="nav">
@@ -211,13 +124,13 @@
   <div>
     <div class="kicker">CLASSIFIED RESEARCH DOCUMENT // 機密研究文書</div>
     <h1>THE MATRIX: AGI</h1>
-    <div class="sub">EXISTENTIAL RISK DECOMPOSITION — 2026</div>
-    <div class="jp">人工汎用知能の存在論的リスク分解 — 現代の錬金術</div>
+    <div class="sub">ALIGNMENT TAX QUANTIFIER — OVERHEAD DECOMPOSITION</div>
+    <div class="jp">安全性コストの分解・可視化 — 現代の錬金術</div>
 
     <div class="codebox">
-      <div><span class="red">P(X-risk) = P(AGI) × P(Misaligned|AGI) × P(Decisive|Misaligned) × P(Terminal|Decisive)</span></div>
+      <div class="red">Tax = (Baseline − Aligned) / Baseline</div>
       <div style="margin-top:10px;opacity:.9">
-        // This page is a visualization shell. Connect real outputs by exporting JSON logs and rendering them here.
+        // Hook real logs later: export JSON, render Pareto & attribution here. This is the aesthetic shell.
       </div>
     </div>
   </div>
@@ -226,56 +139,40 @@
 <div class="footer">MOVE CURSOR TO INTERACT — THE ENTITY RESPONDS</div>
 
 <script>
-  // HUD timestamps (like your reference)
   function pad(n){ return String(n).padStart(2,'0'); }
-  function stamp(d){
-    return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+pad(d.getHours())+":"+pad(d.getMinutes());
-  }
-  const now = new Date();
-  document.getElementById("hudLeft").textContent =
-    "Today: "+stamp(now)+"    Last Updated: "+stamp(now);
-  document.getElementById("hudRight").textContent =
-    "Countdown: "+(286*24)+"h "+pad(now.getMinutes())+"m "+pad(now.getSeconds())+"s";
+  function stamp(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+pad(d.getHours())+":"+pad(d.getMinutes()); }
+  const now=new Date();
+  document.getElementById("hudLeft").textContent="Today: "+stamp(now)+"    Last Updated: "+stamp(now);
+  document.getElementById("hudRight").textContent="Countdown: "+(286*24)+"h "+pad(now.getMinutes())+"m "+pad(now.getSeconds())+"s";
 
-  // Red matrix rain
-  const c = document.getElementById("rain");
-  const ctx = c.getContext("2d");
-  let w, h, cols, y;
-  const chars = "01";
+  const c=document.getElementById("rain"), ctx=c.getContext("2d");
+  let w,h,cols,y;
+  const chars="01";
   function resize(){
-    w = c.width = window.innerWidth * devicePixelRatio;
-    h = c.height = window.innerHeight * devicePixelRatio;
-    const fontSize = 14 * devicePixelRatio;
-    cols = Math.floor(w / fontSize);
-    y = new Array(cols).fill(0).map(()=>Math.random()*h);
-    ctx.font = fontSize+"px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace";
+    w=c.width=window.innerWidth*devicePixelRatio;
+    h=c.height=window.innerHeight*devicePixelRatio;
+    const fs=14*devicePixelRatio;
+    cols=Math.floor(w/fs);
+    y=new Array(cols).fill(0).map(()=>Math.random()*h);
+    ctx.font=fs+"px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace";
   }
-  window.addEventListener("resize", resize);
-  resize();
+  window.addEventListener("resize", resize); resize();
 
-  let mx = -9999, my = -9999;
-  window.addEventListener("mousemove", (e)=>{ mx = e.clientX*devicePixelRatio; my = e.clientY*devicePixelRatio; });
+  let mx=-9999,my=-9999;
+  window.addEventListener("mousemove",(e)=>{ mx=e.clientX*devicePixelRatio; my=e.clientY*devicePixelRatio; });
 
   function frame(){
-    // fade
-    ctx.fillStyle = "rgba(0,0,0,0.08)";
+    ctx.fillStyle="rgba(0,0,0,0.08)";
     ctx.fillRect(0,0,w,h);
-
-    const fontSize = parseFloat(ctx.font);
+    const fs=parseFloat(ctx.font);
     for(let i=0;i<cols;i++){
-      const x = i*fontSize;
-      const ch = chars[(Math.random()*chars.length)|0];
-
-      // interaction "disturbance" around cursor (subtle)
-      const dy = y[i];
-      const dist = Math.hypot(x-mx, dy-my);
-      const glow = dist < 140*devicePixelRatio ? 0.9 : 0.38;
-
-      ctx.fillStyle = "rgba(255,42,42,"+glow+")";
-      ctx.fillText(ch, x, dy);
-
-      y[i] += (fontSize * (0.65 + Math.random()*0.55));
-      if(y[i] > h) y[i] = 0;
+      const x=i*fs, dy=y[i];
+      const dist=Math.hypot(x-mx, dy-my);
+      const glow=dist<140*devicePixelRatio ? 0.9 : 0.38;
+      ctx.fillStyle="rgba(255,42,42,"+glow+")";
+      ctx.fillText(chars[(Math.random()*2)|0], x, dy);
+      y[i]+=fs*(0.65+Math.random()*0.55);
+      if(y[i]>h) y[i]=0;
     }
     requestAnimationFrame(frame);
   }
