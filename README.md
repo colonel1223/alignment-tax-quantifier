@@ -1,17 +1,23 @@
 # alignment-tax-quantifier
 
-Measure and benchmark the computational overhead that safety constraints introduce into ML training pipelines.
+**What does safety actually cost?**
 
-## Motivation
+## The problem
 
-Every guardrail has a cost — additional compute, longer training time, reduced throughput, degraded task performance. This tool quantifies that cost across different safety interventions so teams can make informed engineering tradeoffs rather than guessing.
+The AI safety conversation is full of qualitative arguments and short on numbers. Teams add RLHF, constitutional AI methods, or output filtering and assume the cost is "worth it" without ever measuring what "it" is.
+
+This tool measures it. FLOPs overhead. Wall-clock training time delta. Downstream task performance regression. Across methods, across model scales.
+
+## Why this matters
+
+You can't have an honest conversation about alignment tradeoffs without data. A 40% compute overhead might be acceptable for a chatbot. It's a dealbreaker for real-time medical inference. The numbers change the engineering decisions — but only if you have the numbers.
 
 ## Features
 
-- Benchmark RLHF, Constitutional AI, and filtering-based safety methods against baseline training
-- Track FLOPs overhead, wall-clock time delta, and downstream task performance regression
-- Generate comparison reports across intervention types and model scales
-- Pluggable architecture for custom safety methods
+- Benchmark RLHF, Constitutional AI, and filtering-based safety methods against unmodified baselines
+- Track FLOPs, wall-clock time, and task performance at each scale
+- Structured JSON reports and comparison visualizations
+- Pluggable — bring your own safety method
 
 ## Quickstart
 
@@ -19,10 +25,6 @@ Every guardrail has a cost — additional compute, longer training time, reduced
 pip install -r requirements.txt
 python benchmark.py --method rlhf --model gpt2 --baseline results/baseline.json
 ```
-
-## Output
-
-Produces structured JSON reports and matplotlib visualizations comparing alignment tax across methods.
 
 ## License
 
