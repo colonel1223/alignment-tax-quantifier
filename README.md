@@ -42,16 +42,3 @@ cd tests && python test_tax.py
 ## License
 
 MIT
-
----
-
-## Research Ecosystem
-
-This framework is part of a unified AI safety research program. See [colonel1223.net](https://colonel1223.net) for the full portfolio.
-
-| Related Project | Connection |
-|----------------|------------|
-| [conformal-multimodal](https://github.com/colonel1223/conformal-multimodal) | Provides distribution-free uncertainty quantification for alignment measurements |
-| [CHIMERA](https://github.com/colonel1223/CHIMERA) | Hallucination bounds interact with alignment tax — safer models hallucinate differently |
-| [SHOGGOTH](https://github.com/colonel1223/SHOGGOTH) | Visualizes the alignment dynamics this framework measures |
-| [Research Papers](https://github.com/colonel1223/ai-research-modern-alchemy) | Scaling law analysis and economic modeling of alignment costs |
